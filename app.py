@@ -210,6 +210,12 @@ class ProportionToolApp(tk.Tk):
             for name in a.custom_bones:
                 self._write_analysis(f"  {name}\n", "dim")
 
+        if a.total_bones > 127:
+            self._write_analysis(f"\n⚠ {a.total_bones} bones — exceeds 128-bone studiomdl limit.\n", "warn")
+            self._write_analysis("  Your full model needs SFM's studiomdl to compile.\n", "warn")
+            self._write_analysis("  (Proportion files only contain the ~53 matched bones,\n", "dim")
+            self._write_analysis("   so they compile fine with any studiomdl.)\n", "dim")
+
         self._gen_btn.configure(state=tk.NORMAL)
         self._set_status(
             f"Analysis complete — {a.matched_count} matched, "
