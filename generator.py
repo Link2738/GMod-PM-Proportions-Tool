@@ -3,23 +3,29 @@
 Implements the CaptainBigButt Proportion Trick method:
 https://steamcommunity.com/sharedfiles/filedetails/?id=2308084980
 
-Generates two skeleton-only SMDs directly from $definebone data
-(no Blender required — pure math from QC bone definitions):
+Generates two skeleton-only SMD animation files directly from
+$definebone data (no Blender required — pure math from QC bone
+definitions):
 
   proportions.smd          = model positions + model rotations
   hl2_female_reference.smd = HL2 positions   + model rotations
 
-Because both SMDs share identical rotations, studiomdl's
+Because both files share identical rotations, studiomdl's
 "subtract" produces a pure position delta (zero rotation).
+
+SMD is used because the proportion trick only contains the ~53
+matched ValveBiped bones — well under the 128-bone compile limit.
+Works with any studiomdl compiler (GMod SDK, SFM, etc.).
 """
 
-__version__ = '1.0.0'
+__version__ = '1.2.0'
 
 import math
 import os
 import re
 from dataclasses import dataclass, field
 from typing import Optional, Callable, List
+
 
 
 # ------------------------------------------------------------------
@@ -263,8 +269,8 @@ def _detect_ikchains(qc_path):
 
 def _write_qc_snippet(filepath, anims_subfolder, has_ikchains=True):
     """Write a QC snippet for the CaptainBigButt proportion trick method."""
-    hl2_ref_path = f'{anims_subfolder}/hl2_female_reference'
-    prop_path = f'{anims_subfolder}/proportions'
+    hl2_ref_path = f'{anims_subfolder}/hl2_female_reference.smd'
+    prop_path = f'{anims_subfolder}/proportions.smd'
 
     with open(filepath, 'w', newline='\n', encoding='utf-8') as f:
         f.write('// -- Corrective Proportion Trick (CaptainBigButt method) --\n')
@@ -469,10 +475,10 @@ def generate_files(qc_path: str, output_dir: str, *,
     os.makedirs(output_dir, exist_ok=True)
     anims_dir = os.path.join(output_dir, anims_subfolder)
 
-    # 1. Generate both SMDs
     proportions_path = os.path.join(anims_dir, 'proportions.smd')
     hl2_ref_path = os.path.join(anims_dir, 'hl2_female_reference.smd')
 
+    log('[INFO] Format: SMD')
     bone_count = _generate_proportion_smds(
         model_bones, ref_bones, proportions_path, hl2_ref_path
     )
